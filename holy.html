@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>International Holiday Calendar</title>
+
+<style>
+    body {
+        font-family: "Segoe UI", Tahoma, sans-serif;
+        text-align: center;
+        color: white;
+
+        background-image: url("anirudh-Xu4Pz7GI9JY-unsplash.jpg");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
+
+    h1 {
+        margin-top: 25px;
+        font-size: 28px;
+        text-shadow: 2px 4px 8px rgba(0,0,0,0.8);
+        letter-spacing: 1px;
+    }
+
+    .container {
+        width: 320px;
+        margin: 25px auto;
+        padding: 20px;
+
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    select, input, button {
+        width: 100%;
+        padding: 10px 12px;
+        margin-bottom: 12px;
+
+        font-size: 14px;
+        border-radius: 10px;
+        border: none;
+        outline: none;
+
+        background: rgba(255, 255, 255, 0.85);
+        color: #333;
+        box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+    }
+
+    select:hover, input:hover, button:hover {
+        transform: scale(1.02);
+    }
+
+    select:focus, input:focus, button:focus {
+        box-shadow: 0 0 0 2px #00c3ff;
+    }
+
+    ul {
+        list-style: none;
+        padding: 0;
+        margin-top: 10px;
+    }
+
+    li {
+        background: rgba(255, 255, 255, 0.9);
+        margin: 6px 0;
+        padding: 8px 10px;
+
+        border-radius: 10px;
+        color: #222;
+        font-weight: 600;
+        font-size: 13px;
+
+        box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    }
+</style>
+</head>
+
+<body>
+
+<h1>🌍 International Holiday Calendar</h1>
+
+<div class="container">
+    <select id="country" onchange="showHolidays()">
+        <option value="">🌐 Select Country</option>
+        <option value="India">India</option>
+        <option value="USA">USA</option>
+        <option value="UK">UK</option>
+        <option value="UAE">UAE</option>
+    </select>
+
+    <input type="month" id="monthPicker" onchange="showHolidays()">
+
+    <select id="viewMode" onchange="showHolidays()">
+        <option value="month">Month View</option>
+        <option value="week">Week View</option>
+        <option value="day">Day View</option>
+    </select>
+
+    <button onclick="prevMonth()">◀ Previous Month</button>
+    <button onclick="nextMonth()">Next Month ▶</button>
+    <button onclick="resetSelection()">Reset</button>
+
+    <ul id="holidayList"></ul>
+</div>
+
+<script>
+    const startYear = 2026;
+    const endYear = 2046;
+
+    const holidays = [];
+    for (let y = startYear; y <= endYear; y++) {
+        holidays.push({ country: "India", date: `${y}-01-26`, name: "Republic Day" });
+        holidays.push({ country: "India", date: `${y}-08-15`, name: "Independence Day" });
+        holidays.push({ country: "India", date: `${y}-10-02`, name: "Gandhi Jayanti" });
+        holidays.push({ country: "India", date: `${y}-04-14`, name: "Vishu (Kerala New Year)" });
+        holidays.push({ country: "India", date: `${y}-08-29`, name: "Onam (Kerala)" });
+        holidays.push({ country: "India", date: `${y}-11-01`, name: "Kerala Piravi" });
+        holidays.push({ country: "USA", date: `${y}-01-01`, name: "New Year" });
+        holidays.push({ country: "USA", date: `${y}-07-04`, name: "Independence Day" });
+        holidays.push({ country: "USA", date: `${y}-11-26`, name: "Thanksgiving" });
+        holidays.push({ country: "USA", date: `${y}-12-25`, name: "Christmas" });
+        holidays.push({ country: "UK", date: `${y}-01-01`, name: "New Year" });
+        holidays.push({ country: "UK", date: `${y}-12-25`, name: "Christmas" });
+        holidays.push({ country: "UK", date: `${y}-12-26`, name: "Boxing Day" });
+        holidays.push({ country: "UAE", date: `${y}-12-02`, name: "UAE National Day" });
+        holidays.push({ country: "UAE", date: `${y}-04-21`, name: "Eid al-Fitr (Approx)" });
+    }
+
+    const monthInput = document.getElementById("monthPicker");
+    const today = new Date();
+    monthInput.min = `${startYear}-01`;
+    monthInput.max = `${endYear}-12`;
+    monthInput.value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}`;
+
+    function getDayName(dateString) {
+        const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        return days[new Date(dateString).getDay()];
+    }
+
+    function showHolidays() {
+        const country = document.getElementById("country").value;
+        const month = document.getElementById("monthPicker").value;
+        const list = document.getElementById("holidayList");
+        const view = document.getElementById("viewMode").value;
+
+        list.innerHTML = "";
+        if (!country || !month) return;
+
+        const results = holidays.filter(h =>
+            h.country === country && h.date.startsWith(month)
+        );
+
+        if(view === "month") {
+            results.forEach(h => {
+                const li = document.createElement("li");
+                li.textContent = `${h.date} (${getDayName(h.date)}) - ${h.name}`;
+                list.appendChild(li);
+            });
+        } else if(view === "week") {
+            results.slice(0,7).forEach(h => {
+                const li = document.createElement("li");
+                li.textContent = `${h.date} (${getDayName(h.date)}) - ${h.name}`;
+                list.appendChild(li);
+            });
+        } else if(view === "day") {
+            if(results.length > 0) {
+                const li = document.createElement("li");
+                li.textContent = `${results[0].date} (${getDayName(results[0].date)}) - ${results[0].name}`;
+                list.appendChild(li);
+            }
+        }
+    }
+
+    function prevMonth() {
+        if(!monthInput.value) return;
+        let [y,m] = monthInput.value.split("-");
+        m = parseInt(m)-1;
+        if(m < 1) { y = parseInt(y)-1; m = 12; }
+        monthInput.value = `${y}-${String(m).padStart(2,"0")}`;
+        showHolidays();
+    }
+
+    function nextMonth() {
+        if(!monthInput.value) return;
+        let [y,m] = monthInput.value.split("-");
+        m = parseInt(m)+1;
+        if(m > 12) { y = parseInt(y)+1; m = 1; }
+        monthInput.value = `${y}-${String(m).padStart(2,"0")}`;
+        showHolidays();
+    }
+
+    function resetSelection() {
+        document.getElementById("country").value = "";
+        monthInput.value = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}`;
+        document.getElementById("viewMode").value = "month";
+        document.getElementById("holidayList").innerHTML = "";
+    }
+</script>
+
+</body>
+</html>
+
